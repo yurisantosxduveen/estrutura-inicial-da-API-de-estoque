@@ -3,6 +3,7 @@ package com.API.Empresa.Service;
 import com.API.Empresa.Model.Produtos;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -200,4 +201,74 @@ public class Service {
                 .collect(Collectors.toList());
     }
 
+    public List<Produtos> ordenarProdutos(String campo, String direcao) {
+
+        Comparator<Produtos> comparator;
+
+        switch (campo.toLowerCase()) {
+
+            case "nome":
+                comparator = Comparator.comparing(
+                        Produtos::getNome,
+                        String.CASE_INSENSITIVE_ORDER
+                );
+                break;
+
+            case "preco":
+                comparator = Comparator.comparing(p -> Double.parseDouble(
+                        p.getPreco()
+                                .replace("R$", "")
+                                .trim()
+                                .replace(".", "")
+                                .replace(",", ".")
+                    )
+                );
+                break;
+
+            case "estoque":
+                comparator = Comparator.comparing(Produtos::getEstoque);
+                break;
+
+            default:
+                throw new IllegalArgumentException("Campo inválido para ordenação");
+        }
+
+        if (direcao.equalsIgnoreCase("desc")) {
+
+            comparator = comparator.reversed();
+        } else if (!direcao.equalsIgnoreCase("asc")) {
+            throw new IllegalArgumentException("Direção inválida");
+        }
+
+        return produtos.stream()
+                .sorted(comparator)
+                .collect(Collectors.toList());
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

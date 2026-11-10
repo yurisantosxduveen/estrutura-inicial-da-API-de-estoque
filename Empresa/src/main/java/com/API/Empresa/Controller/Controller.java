@@ -101,4 +101,14 @@ public class Controller {
         return service.BuscarPorFaixaDePreco(min, max);
     }
 
+    // ======================================================== //
+
+    @GetMapping("/Produtos/Ordenar")
+    public List<Produtos> ordenarprodutos(
+            @RequestParam String campo,
+            @RequestParam String direcao) {
+
+        return service.ordenarProdutos(campo, direcao);
+    }
+
 }
