@@ -1,6 +1,13 @@
 package com.API.Empresa.Service;
 
+import com.API.Empresa.DTO.ProdutoCadastroDTO;
+import com.API.Empresa.DTO.ProdutoRespostaDTO;
 import com.API.Empresa.Model.Produtos;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -243,6 +250,66 @@ public class Service {
         return produtos.stream()
                 .sorted(comparator)
                 .collect(Collectors.toList());
+    }
+
+    public ProdutoRespostaDTO cadastrarProduto(ProdutoCadastroDTO dto) {
+
+        Produtos produto = new Produtos(
+
+                dto.nome(),
+                dto.categoria(),
+                dto.codigo(),
+                dto.preco(),
+                dto.estoque(),
+                dto.unidade());
+
+
+        produtos.add(produto);
+
+        return new ProdutoRespostaDTO(
+                produto.getNome(),
+                produto.getCategoria(),
+                produto.getCodigo(),
+                produto.getPreco(),
+                produto.getEstoque(),
+                produto.getUnidade()
+        );
+
+    }
+
+    public Page<Produtos> listarProdutosPaginados(Pageable pageable) {
+
+        List<Produtos> listaOrdenada = new ArrayList<>(produtos);
+
+        if (pageable.getSort().isSorted()) {
+
+            Sort.Order ordem = pageable.getSort().iterator().next();
+
+            listaOrdenada = ordenarProdutos(
+                    ordem.getProperty(),
+                    ordem.getDirection().name()
+            );
+        }
+
+        int inicio = (int) pageable.getOffset();
+
+        if (inicio > listaOrdenada.size()) {
+            return Page.empty(pageable);
+        }
+
+        int fim = Math.min(
+                inicio + pageable.getPageSize(),
+                listaOrdenada.size()
+        );
+
+        List<Produtos> conteudo = listaOrdenada.subList(inicio, fim);
+
+        return new PageImpl<>(
+                conteudo,
+                pageable,
+                listaOrdenada.size()
+        );
+
     }
 
 }

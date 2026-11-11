@@ -2,6 +2,7 @@ package com.API.Empresa.Exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -10,11 +11,16 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErroResposta> tratarErroDeArgumento(IllegalArgumentException ex) {
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErroResposta> tratarErroDeArgumento(MethodArgumentNotValidException ex) {
+
+        String mensagem = ex.getBindingResult()
+                .getFieldErrors()
+                .get(0)
+                .getDefaultMessage();
 
         ErroResposta erro = new ErroResposta(
-                ex.getMessage(),
+                mensagem,
                 400,
                 LocalDateTime.now()
         );
@@ -23,4 +29,5 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(erro);
     }
+
 }
